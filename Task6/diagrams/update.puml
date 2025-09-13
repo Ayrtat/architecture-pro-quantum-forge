@@ -1,0 +1,44 @@
+@startuml
+skinparam componentStyle uml2
+
+title RAG Data Indexing Architecture
+
+cloud "Источник данных" as DataSource {
+  [Файловое хранилище] as Files
+  [Базы данных] as Databases
+  [Внешние API] as ExternalAPI
+}
+
+component "Скрипт индексации\n(Python)" as IndexScript {
+  [Парсер данных] as Parser
+  [Генератор чанков] as Chunker
+  [Эмбеддинг генератор] as Embedder
+}
+
+database "Векторный индекс\nChroma DB" as VectorDB
+database "Логи индексации" as LogDB
+
+node "Сервер индексации" as Server {
+  [Cron планировщик] as Cron
+}
+
+Files --> Parser
+Databases --> Parser
+ExternalAPI --> Parser
+
+Parser --> Chunker : Текстовые данные
+Chunker --> Embedder : Чанки текста
+Embedder --> VectorDB : Векторные эмбеддинги
+
+IndexScript --> LogDB : Логирование процесса
+
+Cron --> IndexScript : Запуск по расписанию
+
+note right of Cron
+  Автоматический запуск 
+  скрипта индексации 
+  через определенные 
+  интервалы времени
+end note
+
+@enduml

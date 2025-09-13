@@ -1,0 +1,20 @@
+services:
+  rag-bot:
+    build: .
+    container_name: rag-bot
+    ports:
+      - "8501:8501"
+    volumes:
+      - ../chroma_db:/app/chroma_db
+      - ./.env:/app/.env:ro
+    environment:
+      - CHROMA_TELEMETRY_ENABLED=false
+      - CHROMA_ANONYMIZED_TELEMETRY=false
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; urllib.request.urlopen('http://localhost:8501/_stcore/health').read(); print('ok')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
