@@ -1,0 +1,51 @@
+@startuml
+!theme plain
+actor User
+participant "Telegram Bot" as Bot
+participant "RAG Engine" as RAG
+participant "Vector Database" as VectorDB
+participant "Language Model" as LLM
+database "Document Storage" as Docs
+
+User -> Bot: Отправляет вопрос
+activate Bot
+
+Bot -> RAG: Передает запрос
+activate RAG
+
+RAG -> VectorDB: similarity_search()
+activate VectorDB
+
+alt Индекс пустой
+    VectorDB --> RAG: Возвращает пустой результат
+    RAG -> RAG: Обработка ошибки
+    RAG --> Bot: Ошибка "Нет данных"
+else Найдены документы
+    VectorDB --> RAG: Возвращает список документов
+end
+
+RAG -> RAG: Фильтрация документов
+note right: Проверка на безопасность\nУдаление вредоносных паттернов
+
+alt Нет валидных документов
+    RAG --> Bot: Ошибка "Нет подходящих документов"
+else Есть валидные документы
+    RAG -> RAG: Подготовка контекста
+    
+    RAG -> LLM: Генерация ответа
+    activate LLM
+
+    alt Ошибка генерации
+        LLM --> RAG: Возвращает ошибку
+        RAG --> Bot: Ошибка генерации ответа
+    else Успешная генерация
+        LLM --> RAG: Возвращает ответ
+    end
+
+    RAG --> Bot: Передает сгенерированный ответ
+end
+
+Bot -> User: Отправляет ответ
+deactivate Bot
+
+@enduml

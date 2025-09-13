@@ -1,0 +1,21 @@
+{
+  "model": {
+    "name": "all-mpnet-base-v2",
+    "repository": "https://huggingface.co/sentence-transformers/all-mpnet-base-v2  ",
+    "embedding_size": 768
+  },
+  "knowledge_base": {
+    "path": "knowledge_base",
+    "total_documents": 27,
+    "total_chunks": 87
+  },
+  "processing": {
+    "time_seconds": 54.647040367126465,
+    "time_minutes": 0.9107840061187744,
+    "chunks_per_second": 1.59203498333161
+  },
+  "vectorstore": {
+    "type": "ChromaDB",
+    "persist_directory": "./chroma_db"
+  }
+}
